@@ -10,6 +10,7 @@
 
 
 ## Helper Functions ##
+# A bunch of functions that will help but aren't otherwise usefull
 
 # Rudimentary ini reader
 # Returns a PS object containing Ini settings
@@ -67,13 +68,15 @@ function Get-IniFileContent
 }
 
 # Checks if current session is admin or not.
-function Test-RunAsLevel ([switch]$Admin) {  
+function Test-RunAsLevel {  
     $CU = [Security.Principal.WindowsIdentity]::GetCurrent()
     $RE = (New-Object Security.Principal.WindowsPrincipal $CU).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
-    if ($Admin) {
-        return $RE
+
+    if ($RE) {
+        return $true
     } else {
-        return !$RE
+        $NOT_ADMIN_ERROR = [string]"Not running as admin. Insufficient rights"
+        throw $NOT_ADMIN_ERROR
     }
 }
 

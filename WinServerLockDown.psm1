@@ -3,11 +3,30 @@
 # Based on the CIS Windows Security benchmark.
 #
 
-## Templates ##
-
-
 ## main functions ##
+# Exports password settings and turns them in to a PS object
+function Get-PasswordSettings {
+    [CmdletBinding()]
+    param (
+        [switch]$IgnoreUnsupportedVersion,
+		[switch]$IncludeRegistryValues
+    )
 
+    begin {
+        Test-RunAsLevel
+        if (!$IgnoreUnsupportedVersion) {
+			Test-WindowsVersion
+		}
+    }
+
+    process {
+        secedit /export /cfg "$PSScriptRoot\secpol.cfg" | Out-Null
+        $Settings = Get-IniFileContent -Path "$PSScriptRoot\secpol.cfg"
+		Remove-Item "$PSScriptRoot\secpol.cfg"
+
+        return $Settings
+    }
+}
 
 ## Helper Functions ##
 # A bunch of functions that will help but aren't otherwise usefull

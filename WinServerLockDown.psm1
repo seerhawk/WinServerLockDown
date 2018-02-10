@@ -81,11 +81,17 @@ function Test-RunAsLevel {
 }
 
 # Checks to see if windows version is supported
-function Test-WindowsVersion {
+function Test-WinVersion {
     $Version = [System.Environment]::OSVersion.Version
 
     switch ($Version.Major) {
-        10 { return $true }
-        6 { if ($Version.minor -eq 3) { return $True }}
+        6 { if ($Version.minor -eq 3) { Break }}
+
+        10 { Break }
+
+        default {
+            $UNSUPORTED_VERSION_ERROR = [string]"This version of Windows is untested and unssuported."
+            throw $UNSUPORTED_VERSION_ERROR
+        }
     }
 }

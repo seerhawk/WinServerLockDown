@@ -1,50 +1,112 @@
-# Security script by Yaron Vanhulst
+# Windows Security Module by Yaron Vanhulst
 # 
 # Based on the CIS Windows Security benchmark.
+# Currently tested and maintained for:
+#     - Windows Server 2012 R2
 #
 
 ## main functions ##
-# Exports password settings and turns them in to a PS object
-function Get-PasswordSettings {
-    [CmdletBinding()]
+# Gets a specific or all password settings from the in memory stored object.
+function Get-PasswordSetting {
+	[CmdletBinding()]
     param (
-        [switch]$IgnoreUnsupportedVersion,
-		[switch]$IncludeRegistryValues
-    )
-
-    begin {
-        Test-RunAsLevel
-        if (!$IgnoreUnsupportedVersion) {
-			Test-WindowsVersion
+		[Parameter(
+            ParameterSetName='Name'
+        )]
+		[string]$Name,
+		[Parameter(
+            ParameterSetName='Section'
+        )]
+		[string]$Section
+	)
+	begin {
+		Test-EnvSettings
+		if (!$Script:PasswordSettings) {
+			$Script:PasswordSettings = Export-SecPolSettings
 		}
-    }
+	}
 
-    process {
-        secedit /export /cfg "$PSScriptRoot\secpol.cfg" | Out-Null
-        $Settings = Get-IniFileContent -Path "$PSScriptRoot\secpol.cfg"
-		Remove-Item "$PSScriptRoot\secpol.cfg"
+	process {
+		if ($Name){
+			$Setting = $Script:PasswordSettings | Where-Object {$_.SettingName -eq $Name}
 
-        return $Settings
-    }
+			return $Setting
+		}
+
+		if ($Section) {
+			$Setting = $Script:PasswordSettings | Where-Object {$_.Section -eq $Section}
+
+			return $Setting
+		}
+	}
+}
+
+# Changes the value of a setting in memory. Is only actually changed writen to disk OS if Save-PasswordSettings is called after.
+function Set-PasswordSetting {
+	[CmdletBinding()]
+    param (
+		[parameter(Mandatory=$true)]
+		[string]$Name,
+		[parameter(Mandatory=$true)]
+		[string]$Value
+	)
+	begin {
+		Test-EnvSettings
+		if (!$Script:PasswordSettings) {
+			$Script:PasswordSettings = Export-SecPolSettings
+		}
+	}
+
+	process {
+
+	}
+}
+
+# Commits any changes made by Set-PasswordSetting to memory
+function Save-PasswordSettings {
+	
 }
 
 ## Helper Functions ##
-# A bunch of functions that will help but aren't otherwise usefull
+# A bunch of functions that will help internal functioning of cmdlets but aren't otherwise all that usefull
+
+# Exports password settings and turns them in to a PS object
+function Export-SecPolSettings {
+    [CmdletBinding()]
+    param (
+		[switch]$ExcludeRegistryValues,
+		[switch]$KeepFile
+    )
+	
+	begin {
+		Test-RunAsLevel
+	}
+
+    process {
+        secedit /export /cfg "$PSScriptRoot\secpol.cfg" | Out-Null
+        $PWSettings = Get-IniFileContent -Path "$PSScriptRoot\secpol.cfg"
+		Remove-Item "$PSScriptRoot\secpol.cfg"
+
+		if ($ExcludeRegistryValues){
+			$PWSettings = $PWSettings | Where-Object {$_.Section -ne "Registry Values"}
+		}
+
+        return $PWSettings
+    }
+}
 
 # Rudimentary ini reader
 # Returns a PS object containing Ini settings
 function Get-IniFileContent
 {
-    param
-    (
+    param (
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         $Path
     )
 
-    Process
-    {
+    Process {
         $ini = @{}
         $section = "NO_SECTION"
         $ini[$section] = @{}
@@ -86,6 +148,10 @@ function Get-IniFileContent
     }
 }
 
+function Out-IniFile {
+	
+}
+
 # Checks if current session is admin or not.
 function Test-RunAsLevel {  
     $CU = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -94,7 +160,7 @@ function Test-RunAsLevel {
     if ($RE) {
         return $true
     } else {
-        $NOT_ADMIN_ERROR = [string]"Not running as admin. Insufficient rights"
+        $NOT_ADMIN_ERROR = [string]"Not running as admin. Insufficient rights. Please run from an elevated prompt."
         throw $NOT_ADMIN_ERROR
     }
 }
@@ -109,8 +175,28 @@ function Test-WinVersion {
         10 { Break }
 
         default {
-            $UNSUPORTED_VERSION_ERROR = [string]"This version of Windows is untested and unssuported."
+            $UNSUPORTED_VERSION_ERROR = [string]"This version of Windows is untested and unssuported"
             throw $UNSUPORTED_VERSION_ERROR
         }
     }
+}
+
+# To be ran at the start of every function
+function Test-EnvSettings {
+	param (
+		[switch]$IgnoreUnsuportedOS
+	)
+
+	process {
+		if (!$Script:TestedEnvSettings) {
+			
+			Test-RunAsLevel | Out-Null
+
+			if (!$IgnoreUnsuportedOS) {
+				Test-WinVersion
+			}
+
+			$Script:TestedEnvSettings = $true
+		}
+	}
 }

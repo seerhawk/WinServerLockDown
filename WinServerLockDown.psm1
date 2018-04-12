@@ -149,7 +149,41 @@ function Get-IniFileContent
 }
 
 function Out-IniFile {
-	
+	param (
+        [Parameter(Mandatory=$true, Position=0)]
+        [ValidateNotNull()]
+        [ValidateNotNullOrEmpty()]
+		[string]$Path,
+		[Parameter(Mandatory=$true, Position=1)]
+        [ValidateNotNull()]
+        [ValidateNotNullOrEmpty()]
+		$PSIniObject
+    )
+
+	process {
+		$Sections = @{}
+		$Ini = @()
+
+		foreach ($Object in $PSIniObject) {
+			if ($Object.Section -notin $Sections.Keys) {
+				$Section = @()
+				$Sections[$Object.Section] = $Section
+			}
+
+			$Sections[$Object.Section] += [string]($Object.SettingName + " = " + $Object.Value)
+
+		}
+
+		foreach ($Section in $Sections.Keys) {
+			$Ini += "[$Section]"
+			foreach ($Setting in $Sections[$Section]) {
+				$Ini += $Setting
+			}
+		}
+
+		$Ini | Out-File $Path
+
+	}
 }
 
 # Checks if current session is admin or not.

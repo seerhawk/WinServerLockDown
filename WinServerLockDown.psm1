@@ -5,70 +5,79 @@
 #     - Windows Server 2012 R2
 #
 
-## main functions ##
+## SecPol functions ##
 # Gets a specific or all password settings from the in memory stored object.
-function Get-PasswordSetting {
+function Get-SecPolSetting {
 	[CmdletBinding()]
     param (
-		[Parameter(
-            ParameterSetName='Name'
-        )]
 		[string]$Name,
-		[Parameter(
-            ParameterSetName='Section'
-        )]
 		[string]$Section
 	)
 	begin {
+		if ($Name -and $Section){
+			throw [string]"the -Name and -Section paramaters are mutualy exclusive."
+		}
 		Test-EnvSettings
-		if (!$Script:PasswordSettings) {
-			$Script:PasswordSettings = Export-SecPolSettings
+		if (!$Script:SecPolSettings) {
+			$Script:SecPolSettings = Export-SecPolSettings
 		}
 	}
 
 	process {
 		if ($Name){
-			$Setting = $Script:PasswordSettings | Where-Object {$_.SettingName -eq $Name}
+			$Setting = $Script:SecPolSettings | Where-Object {$_.SettingName -eq $Name}
 
 			return $Setting
 		}
 
 		if ($Section) {
-			$Setting = $Script:PasswordSettings | Where-Object {$_.Section -eq $Section}
+			$Settings = $Script:SecPolSettings | Where-Object {$_.Section -eq $Section}
 
-			return $Setting
+			return $Settings
+		} else {
+			return $Script:SecPolSettings
 		}
 	}
 }
 
-# Changes the value of a setting in memory. Is only actually changed writen to disk OS if Save-PasswordSettings is called after.
-function Set-PasswordSetting {
+# Changes the value of a setting in memory. Is only actually writen to disk OS if Save-PasswordSettings is called after.
+function Set-SecPolSetting {
 	[CmdletBinding()]
     param (
 		[parameter(Mandatory=$true)]
 		[string]$Name,
 		[parameter(Mandatory=$true)]
-		[string]$Value
+		[string]$Value,
+		[switch]$ManualCommit
 	)
 	begin {
 		Test-EnvSettings
-		if (!$Script:PasswordSettings) {
-			$Script:PasswordSettings = Export-SecPolSettings
+		if (!$Script:SecPolSettings) {
+			$Script:SecPolSettings = Export-SecPolSettings
 		}
 	}
 
 	process {
-
+		$Script:SecPolSettings | Where-Object {$_.SettingName -eq $Name} | % {$_.Value = $Value}
+		
+		if (!$ManualCommit) {
+			Save-SecPolSettings
+		}
 	}
 }
 
 # Commits any changes made by Set-PasswordSetting to memory
-function Save-PasswordSettings {
-	
+function Save-SecPolSettings {
+	[CmdletBinding()]
+	param()
+	process {
+		if ($Script:SecPolSettings) {
+			Out-IniFile -Path "$script:PSScriptRoot\secpol.cfg" -PSIniObject $Script:SecPolSettings
+			secedit /configure /db c:\windows\security\local.sdb /cfg "$PSScriptRoot\secpol.cfg" /areas SECURITYPOLICY | Out-Null
+			Remove-Item $script:PSScriptRoot\secpol.cfg
+		}
+	}
 }
-
-## Helper Functions ##
-# A bunch of functions that will help internal functioning of cmdlets but aren't otherwise all that usefull
 
 # Exports password settings and turns them in to a PS object
 function Export-SecPolSettings {
@@ -84,16 +93,19 @@ function Export-SecPolSettings {
 
     process {
         secedit /export /cfg "$PSScriptRoot\secpol.cfg" | Out-Null
-        $PWSettings = Get-IniFileContent -Path "$PSScriptRoot\secpol.cfg"
+        $SecPolSettings = Get-IniFileContent -Path "$PSScriptRoot\secpol.cfg"
 		Remove-Item "$PSScriptRoot\secpol.cfg"
 
 		if ($ExcludeRegistryValues){
-			$PWSettings = $PWSettings | Where-Object {$_.Section -ne "Registry Values"}
+			$SecPolSettings = $SecPolSettings | Where-Object {$_.Section -ne "Registry Values"}
 		}
 
-        return $PWSettings
+        return $SecPolSettings
     }
 }
+
+## Helper Functions ##
+# A bunch of functions that will help internal functioning of cmdlets but aren't otherwise all that usefull
 
 # Rudimentary ini reader
 # Returns a PS object containing Ini settings
@@ -209,7 +221,7 @@ function Test-WinVersion {
         10 { Break }
 
         default {
-            $UNSUPORTED_VERSION_ERROR = [string]"This version of Windows is untested and unssuported"
+            $UNSUPORTED_VERSION_ERROR = [string]"This version of Windows is currently untested and unssuported."
             throw $UNSUPORTED_VERSION_ERROR
         }
     }

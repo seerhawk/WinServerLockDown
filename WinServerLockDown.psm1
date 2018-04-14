@@ -2,7 +2,7 @@
 # 
 # Based on the CIS Windows Security benchmark.
 # Currently tested and maintained for:
-#     - Windows Server 2012 R2
+#     - Windows Server 2012 R2 (CIS Version 2.3.0)
 #
 
 ## SecPol functions ##
@@ -25,7 +25,7 @@ function Get-SecPolSetting {
 
 	process {
 		if ($Name){
-			$Setting = $Script:SecPolSettings | Where-Object {$_.SettingName -eq $Name}
+			$Setting = $Script:SecPolSettings | Where-Object {$_.Name -eq $Name}
 
 			return $Setting
 		}
@@ -58,7 +58,7 @@ function Set-SecPolSetting {
 	}
 
 	process {
-		$Script:SecPolSettings | Where-Object {$_.SettingName -eq $Name} | % {$_.Value = $Value}
+		$Script:SecPolSettings | Where-Object {$_.Name -eq $Name} | % {$_.Value = $Value}
 		
 		if (!$ManualCommit) {
 			Save-SecPolSettings
@@ -140,7 +140,7 @@ function Get-IniFileContent
         }
 
         $IniObjectCollection = @()
-        $IniProperties = @{SettingName=''; Value=''; Section=''}
+        $IniProperties = @{Name=''; Value=''; Section=''}
         $IniObjectTemplate = New-Object -TypeName PSObject -Property $IniProperties
 
         foreach ($IniSection in $Ini.Keys) {
@@ -148,7 +148,7 @@ function Get-IniFileContent
 
             foreach ($IniSetting in $TempSection.Keys) {
                 $CurrentObject = $IniObjectTemplate.PSObject.Copy()
-                $CurrentObject.SettingName = $IniSetting
+                $CurrentObject.Name = $IniSetting
                 $CurrentObject.Value = $TempSection[$IniSetting]
                 $CurrentObject.Section = $IniSection
 
@@ -182,7 +182,7 @@ function Out-IniFile {
 				$Sections[$Object.Section] = $Section
 			}
 
-			$Sections[$Object.Section] += [string]($Object.SettingName + " = " + $Object.Value)
+			$Sections[$Object.Section] += [string]($Object.Name + " = " + $Object.Value)
 
 		}
 

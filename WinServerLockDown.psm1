@@ -5,6 +5,225 @@
 #     - Windows Server 2012 R2 (CIS Version 2.3.0)
 #
 
+# 1.1.1 - Level 1
+function Get-PasswordHistory {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		$Default = 24
+		if ($DefaultValue) {
+			return $Default
+		} else {
+			$Current = Get-SecPolSetting -Name 'PasswordHistory'
+			if ($Current) {
+				return $Current
+			} else {
+				return $Default
+			}
+		}
+	}
+}
+
+function Set-PasswordHistory {
+	[CmdletBinding()]
+	param (
+		[parameter(ParameterSet="Value")]
+		[int]$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue
+	)
+
+	process {
+		if ($DefaultValue) {
+			$Value = 0
+		}
+
+		if ($CISRecommendedValue) {
+			$Value = 24
+		}
+
+		Set-SecPolSetting -Name 'PasswordHistory' -Value $Value -ManualCommit:$ManualCommit
+	}
+}
+
+# 1.1.2 - Level 1
+function Get-MaximumPasswordAge {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		$Default= 42
+		if ($DefaultValue) {
+			return $Default
+		} else {
+			$current = Get-SecPolSetting -Name 'MaximumPasswordAge'
+			if ($Current) {
+				return $Current
+			} else {
+				return $Default
+			}
+		}
+	}
+}
+
+function Set-MaximumPasswordAge {
+	param (
+		[Parameter(Position=0, ParameterSet="Value")]
+		[int]$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[switch]$ManualCommit
+	)
+	process {
+		if ($DefaultValue) {
+			$Value = 42
+		}
+
+		if ($CISRecommendedValue) {
+			$Value = 60
+		}
+
+		Set-SecPolSetting -Name 'MaximumPasswordAge' -Value $Value -ManualCommit:$ManualCommit
+	}
+}
+
+# 1.1.3 - Level 1
+function Get-MinimumPasswordAge {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		$Default = 0
+		if ($DefaultValue) {
+			return $Default
+		} else {
+			$Current = Get-SecPolSetting -Name 'MinimumPasswordAge'
+			if ($Current) {
+				return $Current
+			} else {
+				return $Default
+			}
+		}
+	}
+}
+
+function Set-MinimumPasswordAge {
+	param (
+		[Parameter(Position=0, ParameterSet="Value")]
+		[int]$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[switch]$ManualCommit
+	)
+	process {
+		if ($DefaultValue) {
+			$Value = 0
+		}
+
+		if ($CISRecommendedValue) {
+			$Value = 1
+		}
+
+		Set-SecPolSetting -Name 'MinimumPasswordAge' -Value $Value -ManualCommit:$ManualCommit
+	}
+}
+
+# 1.1.4 - Level 1
+function Get-MinimumPasswordLength {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		$Default = 7
+		if ($DefaultValue) {
+			return $Default
+		} else {
+			$Current = Get-SecPolSetting -Name 'MinimumPasswordLength'
+			if ($Current) {
+				return $Current
+			} else {
+				return $Default
+			}
+		}
+	}
+}
+
+function Set-MinimumPasswordLength {
+	param (
+		[Parameter(Position=0, ParameterSet="Value")]
+		[int]$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[switch]$ManualCommit
+	)
+	process {
+		if ($DefaultValue) {
+			$Value = 7
+		}
+
+		if ($CISRecommendedValue) {
+			$Value = 14
+		}
+
+		Set-SecPolSetting -Name 'MinimumPasswordLength' -Value $Value -ManualCommit:$ManualCommit
+	}
+}
+
+# 1.1.5 - Level 1
+function Get-PasswordComplexity {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		$Default = 0
+		if ($DefaultValue) {
+			return $Default
+		} else {
+			$Current = Get-SecPolSetting -Name 'PasswordComplexity'
+			if ($Current) {
+				return $Current
+			} else {
+				return $Default
+			}
+		}
+	}
+}
+
+function Set-PasswordComplexity {
+	param (
+		[Parameter(Position=0, ParameterSet="Value")]
+		[validateset(0,1)]
+		[int]$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[switch]$ManualCommit
+	)
+	process {
+		if ($DefaultValue) {
+			$Value = 0
+		}
+
+		if ($CISRecommendedValue) {
+			$Value = 1
+		}
+
+		Set-SecPolSetting -Name 'PasswordComplexity' -Value $Value -ManualCommit:$ManualCommit
+	}
+}
+
+
+
 ## SecPol functions ##
 # Gets a specific or all password settings from the in memory stored object.
 function Get-SecPolSetting {
@@ -113,7 +332,6 @@ function Get-IniFileContent
 {
     param (
         [Parameter(Mandatory=$true, Position=0)]
-        [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         $Path
     )

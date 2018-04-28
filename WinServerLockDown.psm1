@@ -317,6 +317,8 @@ function Set-SecPolSetting {
 		[string]$Name,
 		[parameter(Mandatory=$true)]
 		[string]$Value,
+		# Only use section for settings that are not defined by default. (Like lockout duration)
+		[string]$Section,
 		[switch]$ManualCommit
 	)
 	begin {
@@ -327,7 +329,16 @@ function Set-SecPolSetting {
 	}
 
 	process {
-		$Script:SecPolSettings | Where-Object {$_.Name -eq $Name} | % {$_.Value = $Value}
+		if ($Script:SecPolSettings | Where-Object {$_.Name -eq $Name}) {
+			$Script:SecPolSettings | Where-Object {$_.Name -eq $Name} | % {$_.Value = $Value}
+		} else {
+			$IniProperties = @{Name=''; Value=''; Section=''}
+			$Object = New-Object -TypeName PSObject -Property $IniProperties
+            $Object.Name = $Name
+            $Object.Value = $Value
+            $Object.Section = $Section
+			$Script:SecPolSettings += $Object
+		}
 		
 		if (!$ManualCommit) {
 			Save-SecPolSettings

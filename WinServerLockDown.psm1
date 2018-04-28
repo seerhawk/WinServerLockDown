@@ -331,6 +331,10 @@ function Set-LockoutDuration {
 			$Value = 15
 		}
 		
+		if (!(Get-BadPasswordCount)) {
+			Write-Warning -Message "BadPasswordCount not set! This setting only applies if BadPasswordCount is set."
+		}
+
 		Set-SecPolSetting -Name 'LockoutDuration' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
 	}
 }
@@ -372,10 +376,57 @@ function Set-BadPasswordCount {
 		}
 
 		if ($CISRecommendedValue) {
-			$Value = 24
+			$Value = 10
 		}
 
-		Set-SecPolSetting -Name 'LockoutDuration' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
+		Set-SecPolSetting -Name 'LockoutBadCount' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
+	}
+}
+
+# 1.2.3 - Level 1
+function Get-LockoutCountDuration {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		if ($DefaultValue) {
+			Write-Host "There is no default value for this setting, as it is only applied when a lockout threshold is set."
+		} else {
+			$Current = Get-SecPolSetting -Name 'ResetLockoutCount'
+			if ($Current) {
+				return $Current
+			} else {
+				Write-Host "Currently this setting is not set."
+			}
+		}
+	}
+}
+
+function Set-LockoutCountDuration {
+	param (
+		[Parameter(Position=0, ParameterSet="Value")]
+		[validaterange(0,99999)]
+		[int]$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[switch]$ManualCommit
+	)
+	process {
+		if ($DefaultValue) {
+			$Value = 0
+		}
+
+		if ($CISRecommendedValue) {
+			$Value = 15
+		}
+		
+		if (!(Get-BadPasswordCount)) {
+			Write-Warning -Message "BadPasswordCount not set! This setting only applies if BadPasswordCount is set."
+		}
+
+		Set-SecPolSetting -Name 'ResetLockoutCount' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
 	}
 }
 

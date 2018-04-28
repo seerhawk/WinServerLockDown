@@ -19,6 +19,7 @@ function Get-PasswordHistory {
 			if ($Current) {
 				return $Current
 			} else {
+				Write-Debug "Currently not set"
 				return $Default
 			}
 		}
@@ -63,6 +64,7 @@ function Get-MaximumPasswordAge {
 			if ($Current) {
 				return $Current
 			} else {
+				Write-Debug "Currently not set"
 				return $Default
 			}
 		}
@@ -106,6 +108,7 @@ function Get-MinimumPasswordAge {
 			if ($Current) {
 				return $Current
 			} else {
+				Write-Debug "Currently not set"
 				return $Default
 			}
 		}
@@ -149,6 +152,7 @@ function Get-MinimumPasswordLength {
 			if ($Current) {
 				return $Current
 			} else {
+				Write-Debug "Currently not set"
 				return $Default
 			}
 		}
@@ -192,6 +196,7 @@ function Get-PasswordComplexity {
 			if ($Current) {
 				return $Current
 			} else {
+				Write-Debug "Currently not set"
 				return $Default
 			}
 		}
@@ -236,6 +241,7 @@ function Get-PasswordReversibleEncryption {
 			if ($Current) {
 				return $Current
 			} else {
+				Write-Debug "Currently not set"
 				return $Default
 			}
 		}
@@ -317,7 +323,7 @@ function Set-SecPolSetting {
 		[string]$Name,
 		[parameter(Mandatory=$true)]
 		[string]$Value,
-		# Only use section for settings that are not defined by default. (Like lockout duration)
+		# Section is only used for settings that are not in the list of secpol settings at the time of export. (Like lockout duration.)
 		[string]$Section,
 		[switch]$ManualCommit
 	)

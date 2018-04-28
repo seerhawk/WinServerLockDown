@@ -280,21 +280,20 @@ function Set-PasswordReversibleEncryption {
 	}
 }
 
-# 1.2.2 - Level 1
+# 1.2.1 - Level 1
 function Get-LockoutDuration {
 	param (
 		[switch]$DefaultValue
 	)
 	process {
-		$Default = 0
 		if ($DefaultValue) {
-			return $Default
+			Write-Host "There is no default value for this setting, as it is only applied when a lockout threshold is set."
 		} else {
 			$Current = Get-SecPolSetting -Name 'LockoutDuration'
 			if ($Current) {
 				return $Current
 			} else {
-				return $Default
+				Write-Host "Currently this setting is not set."
 			}
 		}
 	}
@@ -317,15 +316,51 @@ function Set-LockoutDuration {
 		}
 
 		if ($CISRecommendedValue) {
-			$Value = 1
+			$Value = 15
+		}
+		
+		Set-SecPolSetting -Name 'LockoutDuration' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
+	}
+}
+
+# 1.2.2 - Level 1
+function Get-BadPasswordCount {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		$Default = 0
+		if ($DefaultValue) {
+			return $Default
+		} else {
+			$Current = Get-SecPolSetting -Name 'LockoutBadCount'
+			if ($Current) {
+				return $Current
+			} else {
+				return $Default
+			}
+		}
+	}
+}
+
+function Set-BadPasswordCount {
+	param (
+		[Parameter(Position=0, ParameterSet="Value")]
+		[validaterange(0,24)]
+		[int]$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[switch]$ManualCommit
+	)
+	process {
+		if ($DefaultValue) {
+			$Value = 0
 		}
 
-		if (!($DefaultValue -or $CISRecommendedValue)) {
-			if ($Value) {
-				$Value = 1
-			} else {
-				$Value = 0
-			}
+		if ($CISRecommendedValue) {
+			$Value = 24
 		}
 
 		Set-SecPolSetting -Name 'LockoutDuration' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit

@@ -280,6 +280,59 @@ function Set-PasswordReversibleEncryption {
 	}
 }
 
+# 1.2.2 - Level 1
+function Get-LockoutDuration {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		$Default = 0
+		if ($DefaultValue) {
+			return $Default
+		} else {
+			$Current = Get-SecPolSetting -Name 'LockoutDuration'
+			if ($Current) {
+				return $Current
+			} else {
+				return $Default
+			}
+		}
+	}
+}
+
+function Set-LockoutDuration {
+	param (
+		[Parameter(Position=0, ParameterSet="Value")]
+		[validaterange(0,999)]
+		[int]$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[switch]$ManualCommit
+	)
+	process {
+		if ($DefaultValue) {
+			$Value = 0
+		}
+
+		if ($CISRecommendedValue) {
+			$Value = 1
+		}
+
+		if (!($DefaultValue -or $CISRecommendedValue)) {
+			if ($Value) {
+				$Value = 1
+			} else {
+				$Value = 0
+			}
+		}
+
+		Set-SecPolSetting -Name 'LockoutDuration' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
+	}
+}
+
+
 ## SecPol functions ##
 # Gets a specific or all password settings from the in memory stored object.
 function Get-SecPolSetting {

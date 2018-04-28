@@ -29,13 +29,15 @@ function Get-PasswordHistory {
 function Set-PasswordHistory {
 	[CmdletBinding()]
 	param (
-		[parameter(ParameterSet="Value")]
+		[parameter(ParameterSetNameName="Value")]
 		[validaterange(0,24)]
 		[int]$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
-		[switch]$CISRecommendedValue
+		[parameter(ParameterSetName="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
+		[switch]$ManualCommit
 	)
 
 	process {
@@ -74,13 +76,14 @@ function Get-MaximumPasswordAge {
 
 function Set-MaximumPasswordAge {
 	param (
-		[Parameter(Position=0, ParameterSet="Value")]
+		[Parameter(Position=0, ParameterSetName="Value")]
 		[validaterange(0,999)]
 		[int]$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
+		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -119,13 +122,14 @@ function Get-MinimumPasswordAge {
 
 function Set-MinimumPasswordAge {
 	param (
-		[Parameter(Position=0, ParameterSet="Value")]
+		[Parameter(Position=0, ParameterSetName="Value")]
 		[validaterange(0,998)]
 		[int]$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
+		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -164,13 +168,14 @@ function Get-MinimumPasswordLength {
 
 function Set-MinimumPasswordLength {
 	param (
-		[Parameter(Position=0, ParameterSet="Value")]
+		[Parameter(Position=0, ParameterSetName="Value")]
 		[validaterange(0,14)]
 		[int]$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
+		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -209,13 +214,14 @@ function Get-PasswordComplexity {
 
 function Set-PasswordComplexity {
 	param (
-		[Parameter(Position=0, ParameterSet="Value")]
+		[Parameter(Position=0, ParameterSetName="Value")]
 		[validateset(0,1,$true,$false)]
 		[int]$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
+		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -262,13 +268,14 @@ function Get-PasswordReversibleEncryption {
 
 function Set-PasswordReversibleEncryption {
 	param (
-		[Parameter(Position=0, ParameterSet="Value")]
+		[Parameter(Position=0, ParameterSetName="Value")]
 		[validateset(0,1,$true,$false)]
 		$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
+		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -313,13 +320,14 @@ function Get-LockoutDuration {
 
 function Set-LockoutDuration {
 	param (
-		[Parameter(Position=0, ParameterSet="Value")]
+		[Parameter(Position=0, ParameterSetName="Value")]
 		[validaterange(0,99999)]
 		[int]$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
+		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -361,13 +369,14 @@ function Get-PasswordBadCount {
 
 function Set-PasswordBadCount {
 	param (
-		[Parameter(Position=0, ParameterSet="Value")]
+		[Parameter(Position=0, ParameterSetName="Value")]
 		[validaterange(0,999)]
 		[int]$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
+		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -404,13 +413,14 @@ function Get-LockoutCountDuration {
 
 function Set-LockoutCountDuration {
 	param (
-		[Parameter(Position=0, ParameterSet="Value")]
+		[Parameter(Position=0, ParameterSetName="Value")]
 		[validaterange(0,99999)]
 		[int]$Value,
-		[parameter(ParameterSet="DefaultValue")]
+		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
-		[parameter(ParameterSet="RecommendedValue")]
+		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
+		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {

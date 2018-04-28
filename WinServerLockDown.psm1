@@ -30,6 +30,7 @@ function Set-PasswordHistory {
 	[CmdletBinding()]
 	param (
 		[parameter(ParameterSet="Value")]
+		[validaterange(0,24)]
 		[int]$Value,
 		[parameter(ParameterSet="DefaultValue")]
 		[switch]$DefaultValue,
@@ -74,6 +75,7 @@ function Get-MaximumPasswordAge {
 function Set-MaximumPasswordAge {
 	param (
 		[Parameter(Position=0, ParameterSet="Value")]
+		[validaterange(0,999)]
 		[int]$Value,
 		[parameter(ParameterSet="DefaultValue")]
 		[switch]$DefaultValue,
@@ -118,6 +120,7 @@ function Get-MinimumPasswordAge {
 function Set-MinimumPasswordAge {
 	param (
 		[Parameter(Position=0, ParameterSet="Value")]
+		[validaterange(0,998)]
 		[int]$Value,
 		[parameter(ParameterSet="DefaultValue")]
 		[switch]$DefaultValue,
@@ -162,6 +165,7 @@ function Get-MinimumPasswordLength {
 function Set-MinimumPasswordLength {
 	param (
 		[Parameter(Position=0, ParameterSet="Value")]
+		[validaterange(0,14)]
 		[int]$Value,
 		[parameter(ParameterSet="DefaultValue")]
 		[switch]$DefaultValue,
@@ -206,7 +210,7 @@ function Get-PasswordComplexity {
 function Set-PasswordComplexity {
 	param (
 		[Parameter(Position=0, ParameterSet="Value")]
-		[validateset(0,1)]
+		[validateset(0,1,$true,$false)]
 		[int]$Value,
 		[parameter(ParameterSet="DefaultValue")]
 		[switch]$DefaultValue,
@@ -221,6 +225,14 @@ function Set-PasswordComplexity {
 
 		if ($CISRecommendedValue) {
 			$Value = 1
+		}
+
+		if (!($DefaultValue -or $CISRecommendedValue)) {
+			if ($Value) {
+				$Value = 1
+			} else {
+				$Value = 0
+			}
 		}
 
 		Set-SecPolSetting -Name 'PasswordComplexity' -Value $Value -ManualCommit:$ManualCommit
@@ -302,7 +314,7 @@ function Get-LockoutDuration {
 function Set-LockoutDuration {
 	param (
 		[Parameter(Position=0, ParameterSet="Value")]
-		[validaterange(0,999)]
+		[validaterange(0,99999)]
 		[int]$Value,
 		[parameter(ParameterSet="DefaultValue")]
 		[switch]$DefaultValue,
@@ -346,7 +358,7 @@ function Get-BadPasswordCount {
 function Set-BadPasswordCount {
 	param (
 		[Parameter(Position=0, ParameterSet="Value")]
-		[validaterange(0,24)]
+		[validaterange(0,999)]
 		[int]$Value,
 		[parameter(ParameterSet="DefaultValue")]
 		[switch]$DefaultValue,

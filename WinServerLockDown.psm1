@@ -222,7 +222,57 @@ function Set-PasswordComplexity {
 	}
 }
 
+# 1.1.6 - Level 1
+function Get-PasswordReversibleEncryption {
+	param (
+		[switch]$DefaultValue
+	)
+	process {
+		$Default = $true
+		if ($DefaultValue) {
+			return $Default
+		} else {
+			$Current = Get-SecPolSetting -Name 'ClearTextPassword'
+			if ($Current) {
+				return $Current
+			} else {
+				return $Default
+			}
+		}
+	}
+}
 
+function Set-PasswordReversibleEncryption {
+	param (
+		[Parameter(Position=0, ParameterSet="Value")]
+		[validateset(0,1,$true,$false)]
+		$Value,
+		[parameter(ParameterSet="DefaultValue")]
+		[switch]$DefaultValue,
+		[parameter(ParameterSet="RecommendedValue")]
+		[switch]$CISRecommendedValue,
+		[switch]$ManualCommit
+	)
+	process {
+		if ($DefaultValue) {
+			$Value = 0
+		}
+
+		if ($CISRecommendedValue) {
+			$Value = 1
+		}
+
+		if (!($DefaultValue -or $CISRecommendedValue)) {
+			if ($Value) {
+				$Value = 1
+			} else {
+				$Value = 0
+			}
+		}
+
+		Set-SecPolSetting -Name 'ClearTextPassword' -Value $Value -ManualCommit:$ManualCommit
+	}
+}
 
 ## SecPol functions ##
 # Gets a specific or all password settings from the in memory stored object.
@@ -307,13 +357,15 @@ function Export-SecPolSettings {
     )
 	
 	begin {
-		Test-RunAsLevel
+		Test-RunAsLevel | Out-Null
 	}
 
     process {
         secedit /export /cfg "$PSScriptRoot\secpol.cfg" | Out-Null
         $SecPolSettings = Get-IniFileContent -Path "$PSScriptRoot\secpol.cfg"
-		Remove-Item "$PSScriptRoot\secpol.cfg"
+		if (!$KeepFile) {
+			Remove-Item "$PSScriptRoot\secpol.cfg"
+		}
 
 		if ($ExcludeRegistryValues){
 			$SecPolSettings = $SecPolSettings | Where-Object {$_.Section -ne "Registry Values"}

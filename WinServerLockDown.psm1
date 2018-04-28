@@ -340,7 +340,7 @@ function Set-LockoutDuration {
 }
 
 # 1.2.2 - Level 1
-function Get-BadPasswordCount {
+function Get-PasswordBadCount {
 	param (
 		[switch]$DefaultValue
 	)
@@ -359,7 +359,7 @@ function Get-BadPasswordCount {
 	}
 }
 
-function Set-BadPasswordCount {
+function Set-PasswordBadCount {
 	param (
 		[Parameter(Position=0, ParameterSet="Value")]
 		[validaterange(0,999)]

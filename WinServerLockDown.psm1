@@ -15,7 +15,7 @@ function Get-PasswordHistory {
 		if ($DefaultValue) {
 			return $Default
 		} else {
-			$Current = Get-SecPolSetting -Name 'PasswordHistory'
+			$Current = Get-SecPolSetting -Name 'PasswordHistorySize'
 			if ($Current) {
 				return $Current
 			} else {
@@ -46,7 +46,7 @@ function Set-PasswordHistory {
 			$Value = 24
 		}
 
-		Set-SecPolSetting -Name 'PasswordHistory' -Value $Value -ManualCommit:$ManualCommit
+		Set-SecPolSetting -Name 'PasswordHistorySize' -Value $Value -ManualCommit:$ManualCommit
 	}
 }
 

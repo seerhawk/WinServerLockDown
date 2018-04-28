@@ -27,16 +27,15 @@ function Get-PasswordHistory {
 }
 
 function Set-PasswordHistory {
-	[CmdletBinding()]
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[parameter(ParameterSetNameName="Value")]
+		[parameter(ParameterSetName="Value")]
 		[validaterange(0,24)]
 		[int]$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 
@@ -75,15 +74,15 @@ function Get-MaximumPasswordAge {
 }
 
 function Set-MaximumPasswordAge {
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[Parameter(Position=0, ParameterSetName="Value")]
+		[Parameter(ParameterSetName="Value")]
 		[validaterange(0,999)]
 		[int]$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -121,15 +120,15 @@ function Get-MinimumPasswordAge {
 }
 
 function Set-MinimumPasswordAge {
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[Parameter(Position=0, ParameterSetName="Value")]
+		[Parameter(ParameterSetName="Value")]
 		[validaterange(0,998)]
 		[int]$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -167,15 +166,15 @@ function Get-MinimumPasswordLength {
 }
 
 function Set-MinimumPasswordLength {
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[Parameter(Position=0, ParameterSetName="Value")]
+		[Parameter(ParameterSetName="Value")]
 		[validaterange(0,14)]
 		[int]$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -213,15 +212,15 @@ function Get-PasswordComplexity {
 }
 
 function Set-PasswordComplexity {
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[Parameter(Position=0, ParameterSetName="Value")]
+		[Parameter(ParameterSetName="Value")]
 		[validateset(0,1,$true,$false)]
 		[int]$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -267,15 +266,15 @@ function Get-PasswordReversibleEncryption {
 }
 
 function Set-PasswordReversibleEncryption {
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[Parameter(Position=0, ParameterSetName="Value")]
+		[Parameter(ParameterSetName="Value")]
 		[validateset(0,1,$true,$false)]
 		$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -319,15 +318,15 @@ function Get-LockoutDuration {
 }
 
 function Set-LockoutDuration {
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[Parameter(Position=0, ParameterSetName="Value")]
+		[Parameter(ParameterSetName="Value")]
 		[validaterange(0,99999)]
 		[int]$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -339,11 +338,13 @@ function Set-LockoutDuration {
 			$Value = 15
 		}
 		
-		if (!(Get-BadPasswordCount)) {
-			Write-Warning -Message "BadPasswordCount not set! This setting only applies if BadPasswordCount is set."
+		if (Get-PasswordBadCount -eq 0) {
+			Write-Warning -Message "BadPasswordCount not set! Set PasswordBadCount first, or use the ManualCommit option."
+			$Warned = $true
 		}
-
-		Set-SecPolSetting -Name 'LockoutDuration' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
+		if (!$Warned -or $ManualCommit) {
+			Set-SecPolSetting -Name 'LockoutDuration' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
+		}
 	}
 }
 
@@ -368,15 +369,15 @@ function Get-PasswordBadCount {
 }
 
 function Set-PasswordBadCount {
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[Parameter(Position=0, ParameterSetName="Value")]
+		[Parameter(ParameterSetName="Value")]
 		[validaterange(0,999)]
 		[int]$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -412,15 +413,15 @@ function Get-LockoutCountDuration {
 }
 
 function Set-LockoutCountDuration {
+	[CmdletBinding(DefaultParameterSetName="Value")]
 	param (
-		[Parameter(Position=0, ParameterSetName="Value")]
+		[Parameter(ParameterSetName="Value")]
 		[validaterange(0,99999)]
 		[int]$Value,
 		[parameter(ParameterSetName="DefaultValue")]
 		[switch]$DefaultValue,
 		[parameter(ParameterSetName="RecommendedValue")]
 		[switch]$CISRecommendedValue,
-		[parameter(ParameterSetName="Value","DefaultValue","RecommendedValue")]
 		[switch]$ManualCommit
 	)
 	process {
@@ -432,11 +433,13 @@ function Set-LockoutCountDuration {
 			$Value = 15
 		}
 		
-		if (!(Get-BadPasswordCount)) {
-			Write-Warning -Message "BadPasswordCount not set! This setting only applies if BadPasswordCount is set."
+		if (Get-PasswordBadCount -eq 0) {
+			Write-Warning -Message "BadPasswordCount not set! Set PasswordBadCount first, or use the ManualCommit option."
+			$Warned = $true
 		}
-
-		Set-SecPolSetting -Name 'ResetLockoutCount' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
+		if (!$Warned -or $ManualCommit) {
+			Set-SecPolSetting -Name 'ResetLockoutCount' -Value $Value -Section "System Access" -ManualCommit:$ManualCommit
+		}
 	}
 }
 
